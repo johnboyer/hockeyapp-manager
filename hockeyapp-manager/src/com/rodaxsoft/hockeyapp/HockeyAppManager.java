@@ -38,6 +38,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.exception.ContextedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,11 +175,11 @@ public final class HockeyAppManager {
 	}
 
 	/**
-	 * Returns a list of users of the app
-	 * @return A list of users of the app
+	 * Returns a list of all app users
+	 * @return A list of all app users
 	 * @see #getAppId()
 	 */
-	public List<User> getAppUsers() {
+	public List<User> getAllAppUsers() {
 		String resource = "app_users";
 		String path = appId + "/" + resource;
 		LOG.debug("Path: " + path);
@@ -301,6 +303,26 @@ public final class HockeyAppManager {
 	 */
 	public void setAppId(String appId) {
 		this.appId = appId;
+	}
+	
+	/**
+	 * Returns all the non-pending app users 
+	 * @param appUsers All of the app's uers
+	 * @return A new list of all the non-pending app users 
+	 */
+	public static List<User> getNonPendingAppUsers(List<User> appUsers) {
+		
+		List<User> copyUsers = new ArrayList<>(appUsers);
+		
+		CollectionUtils.filter(copyUsers, new Predicate<User>() {
+
+			@Override
+			public boolean evaluate(User object) {
+				return !object.isPending();
+			}
+		});
+		
+		return copyUsers;		
 	}
 
 }

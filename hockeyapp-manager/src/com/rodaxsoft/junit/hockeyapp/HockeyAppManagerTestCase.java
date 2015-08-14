@@ -153,12 +153,12 @@ public class HockeyAppManagerTestCase {
 	}
 	
 	/**
-	 * Test method for {@link HockeyAppManager#getAppUsers()}
+	 * Test method for {@link HockeyAppManager#getAllAppUsers()}
 	 */
 	@Test
-	public void testGetAppUsers() {
+	public void testGetAllAppUsers() {
 		HockeyAppManager mgr = new HockeyAppManager(apiToken, appId);
-		List<User> users = mgr.getAppUsers();
+		List<User> users = mgr.getAllAppUsers();
 		assertNotNull(users);
 	}
 

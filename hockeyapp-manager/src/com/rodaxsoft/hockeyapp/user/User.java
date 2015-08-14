@@ -96,9 +96,12 @@ public final class User {
 		return invited;
 	}
 	/**
-	 * @return the pending
+	 * Returns <code>true</code> if the user's membership to an app is pending; 
+	 * otherwise, <code>false</code>.
+	 * @return A value of <code>true</code> if the user's membership to an app 
+	 *         is pending.
 	 */
-	public Boolean getPending() {
+	public Boolean isPending() {
 		return pending;
 	}
 	/**
