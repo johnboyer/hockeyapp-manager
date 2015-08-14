@@ -25,8 +25,10 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.beanutils.ConfigurationDynaBean;
 import org.apache.commons.lang3.exception.ContextedException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -34,6 +36,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.rodaxsoft.hockeyapp.App;
 import com.rodaxsoft.hockeyapp.HockeyAppManager;
 import com.rodaxsoft.hockeyapp.Invitation;
 import com.rodaxsoft.hockeyapp.user.User;
@@ -52,13 +55,10 @@ public class HockeyAppManagerTestCase {
 	 */
 	private Configuration config;
 	/**
-	 * HockeyApp API token
+	 * 
+	 * App object
 	 */
-	private String apiToken;
-	/**
-	 * HockeyApp App ID
-	 */
-	private String appId;
+	private App app;
 
 	/**
 	 * @throws Exception
@@ -82,13 +82,12 @@ public class HockeyAppManagerTestCase {
 	public void setUp() throws Exception {
 		PropertiesConfiguration propConfig = new PropertiesConfiguration();
 
-		final String propFile = "HockeyAppManagerTestCase.properties";
+		final String propFile = "HockeyAppManagerTestCase.properties.private";
 		propConfig.load(getClass().getResourceAsStream(propFile));
 		config = propConfig;
-
-		this.apiToken = config.getString("hockeyapp.api.token");
-		this.appId = config.getString("hockeyapp.app.id");
 		
+		DynaBean bean = new ConfigurationDynaBean(config);
+		this.app = new App(bean);
 	}
 
 	/**
@@ -105,12 +104,12 @@ public class HockeyAppManagerTestCase {
 	public void testIsAppMember() {
 		
 		final String member = config.getString("hockeyapp.member.email");
-		final String secret = config.getString("hockeyapp.app.secret");
 		final String nonmember = config.getString("hockeyapp.nonmember.email");
 		
 		try {
 			
-			HockeyAppManager mgr = new HockeyAppManager(apiToken, appId);
+			HockeyAppManager mgr = new HockeyAppManager(app);
+			final String secret = app.getSecret();
 			boolean success = mgr.isAppMember(member, secret);
 			assertTrue(success);
 			
@@ -142,7 +141,7 @@ public class HockeyAppManagerTestCase {
 			                              .setLastName(last)
 			                              .setMessage(msg);
 			
-			HockeyAppManager mgr = new HockeyAppManager(apiToken, appId);
+			HockeyAppManager mgr = new HockeyAppManager(app);
 			boolean success = mgr.inviteUser(invitation);
 			assertTrue(success);
 			
@@ -157,7 +156,7 @@ public class HockeyAppManagerTestCase {
 	 */
 	@Test
 	public void testGetAllAppUsers() {
-		HockeyAppManager mgr = new HockeyAppManager(apiToken, appId);
+		HockeyAppManager mgr = new HockeyAppManager(app);
 		List<User> users = mgr.getAllAppUsers();
 		assertNotNull(users);
 	}

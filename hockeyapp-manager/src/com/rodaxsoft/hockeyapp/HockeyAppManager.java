@@ -50,7 +50,7 @@ import com.rodaxsoft.hockeyapp.user.User;
 /**
  * HockeyAppManager class
  * @author John Boyer
- * @version 2015-08-12
+ * @version 2015-08-14
  * @since 0.1
  * 
  */
@@ -130,16 +130,11 @@ public final class HockeyAppManager {
 		}
 		return success;
 	}
-
+	
 	/**
-	 * HockeyApp API token 
+	 * App object
 	 */
-	private String apiToken;
-
-	/**
-	 * HockeyApp App ID
-	 */
-	private String appId;
+	private App app;
 
 	/**
 	 * Constructor
@@ -154,24 +149,9 @@ public final class HockeyAppManager {
 	 * @param apiToken HockeyApp API token
 	 * @param appId HockeyApp App ID
 	 */
-	public HockeyAppManager(String apiToken, String appId) {
+	public HockeyAppManager(App app) {
 		this();
-		this.setApiToken(apiToken);
-		this.setAppId(appId);
-	}
-
-	/**
-	 * @return the apiToken
-	 */
-	public String getApiToken() {
-		return apiToken;
-	}
-
-	/**
-	 * @return the appId
-	 */
-	public String getAppId() {
-		return appId;
+		this.app = app;
 	}
 
 	/**
@@ -181,14 +161,14 @@ public final class HockeyAppManager {
 	 */
 	public List<User> getAllAppUsers() {
 		String resource = "app_users";
-		String path = appId + "/" + resource;
+		String path = app.getAppId() + "/" + resource;
 		LOG.debug("Path: " + path);
 		
 		Response response = ClientBuilder.newClient()
 				                         .target(BASE_URI)
                                          .path(path)
                                          .request(MediaType.APPLICATION_JSON_TYPE)
-                                         .header(HOCKEY_APP_TOKEN_KEY, apiToken)
+                                         .header(HOCKEY_APP_TOKEN_KEY, app.getApiToken())
                                          .get();
 		
 		List<User> users = null;
@@ -233,7 +213,7 @@ public final class HockeyAppManager {
 	public boolean inviteUser(Invitation invitation) throws ContextedException {
 
 		String resource = "app_users";
-		String path = appId + "/" + resource;
+		String path = app.getAppId() + "/" + resource;
 		LOG.debug("Path: " + path);
 		
 		//Create the path
@@ -247,7 +227,7 @@ public final class HockeyAppManager {
 		//Invoke a POST
 		Response response;
 		response = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
-				            .header(HOCKEY_APP_TOKEN_KEY, apiToken)
+				            .header(HOCKEY_APP_TOKEN_KEY, app.getApiToken())
 				            .post(Entity.form(form));
 
 
@@ -271,7 +251,7 @@ public final class HockeyAppManager {
 			                   throws ContextedException {
 		
 		String resource = "app_users/check";
-		String path = appId + "/" + resource;
+		String path = app.getAppId() + "/" + resource;
 		LOG.debug("Path: " + path);
 
 		WebTarget webTarget = ClientBuilder.newClient().target(BASE_URI)
@@ -290,22 +270,6 @@ public final class HockeyAppManager {
 	}
 
 	/**
-	 * @param apiToken
-	 *            the apiToken to set
-	 */
-	public void setApiToken(String apiToken) {
-		this.apiToken = apiToken;
-	}
-
-	/**
-	 * @param appId
-	 *            the appId to set
-	 */
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
-	
-	/**
 	 * Returns all the non-pending app users 
 	 * @param appUsers All of the app's uers
 	 * @return A new list of all the non-pending app users 
@@ -323,6 +287,20 @@ public final class HockeyAppManager {
 		});
 		
 		return copyUsers;		
+	}
+
+	/**
+	 * @return the app
+	 */
+	public App getApp() {
+		return app;
+	}
+
+	/**
+	 * @param app the app to set
+	 */
+	public void setApp(App app) {
+		this.app = app;
 	}
 
 }
