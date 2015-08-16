@@ -32,11 +32,13 @@ import org.joda.time.DateTime;
 
 import com.rodaxsoft.hockeyapp.user.Role;
 import com.rodaxsoft.hockeyapp.user.User;
+import com.rodaxsoft.mail.Address;
 
 /**
- * UserConverter class
+ * UserConverter converts {@link JSONObject}Object and {@link Address} instances 
+ * into a {@link User} object
  * @author John Boyer
- * @version 2015-08-12
+ * @version 2015-08-15
  * @since 0.1
  * 
  */
@@ -52,45 +54,70 @@ public final class UserConverter implements Converter {
 		
 		if(value instanceof JSONObject) {
 			JSONObject obj = (JSONObject) value;
-			
-			user = new User();
-			user.setCreated(new DateTime(obj.get("created_at")));
-			user.setEmail(obj.getString("email"));
-			user.setFullName(obj.getString("full_name"));
-			user.setId(obj.getInt("id"));
-			
-			final String invited = obj.optString("invited_at");
-			if (!StringUtils.isEmpty(invited)) {
-				user.setInvited(new DateTime(invited));
-			}
-			
-			user.setPending(obj.optBoolean("pending"));
-			
-			//Set the Role
-			final Integer roleIndex = obj.getInt("role");
-			Predicate<Role> predicate = new Predicate<Role>() {
-
-				@Override
-				public boolean evaluate(Role object) {
-					return object.getIndex().equals(roleIndex);
-				}
-			};
-			
-			Role role = CollectionUtils.find(Arrays.asList(Role.values()), predicate);
-			if(null == role) {
-				throw new ContextedRuntimeException("Invalid role value")
-				                       .addContextValue("role", roleIndex);
-			}
-			else {
-				user.setRole(role);
-			}
+			user = convertJSONObject(obj);
+		}
 		
-			user.setTags(obj.getString("tags"));
-			user.setUserId(obj.getInt("user_id"));
-			
+		else if(value instanceof Address) {
+			Address addr = (Address) value;
+			user = convertAddress(addr);
 		}
 		
 		return type.cast(user);
+	}
+
+	/**
+	 * @param addr
+	 * @return
+	 */
+	private User convertAddress(Address addr) {
+		User user;
+		user = new User();
+		user.setEmail(addr.getEmail());
+		user.setFullName(addr.getName());
+		return user;
+	}
+
+	/**
+	 * @param obj
+	 * @return
+	 */
+	private User convertJSONObject(JSONObject obj) {
+		User user;
+		user = new User();
+		user.setCreated(new DateTime(obj.get("created_at")));
+		user.setEmail(obj.getString("email"));
+		user.setFullName(obj.getString("full_name"));
+		user.setId(obj.getInt("id"));
+		
+		final String invited = obj.optString("invited_at");
+		if (!StringUtils.isEmpty(invited)) {
+			user.setInvited(new DateTime(invited));
+		}
+		
+		user.setPending(obj.optBoolean("pending"));
+		
+		//Set the Role
+		final Integer roleIndex = obj.getInt("role");
+		Predicate<Role> predicate = new Predicate<Role>() {
+
+			@Override
+			public boolean evaluate(Role object) {
+				return object.getIndex().equals(roleIndex);
+			}
+		};
+		
+		Role role = CollectionUtils.find(Arrays.asList(Role.values()), predicate);
+		if(null == role) {
+			throw new ContextedRuntimeException("Invalid role value")
+			                       .addContextValue("role", roleIndex);
+		}
+		else {
+			user.setRole(role);
+		}
+
+		user.setTags(obj.getString("tags"));
+		user.setUserId(obj.getInt("user_id"));
+		return user;
 	}
 
 }
