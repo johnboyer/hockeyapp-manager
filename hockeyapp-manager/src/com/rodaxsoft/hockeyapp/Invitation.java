@@ -21,7 +21,12 @@ package com.rodaxsoft.hockeyapp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.exception.ContextedException;
+import javax.mail.Address;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ContextedRuntimeException;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import com.rodaxsoft.hockeyapp.user.Role;
@@ -29,7 +34,7 @@ import com.rodaxsoft.hockeyapp.user.Role;
 /**
  * Invitation class
  * @author John Boyer
- * @version 2015-08-12
+ * @version 2015-08-16
  * @since 0.1
  * 
  */
@@ -39,7 +44,7 @@ public final class Invitation {
 	 * Invite parameters
 	 * @see http://support.hockeyapp.net/kb/api/api-teams-app-users
 	 */
-	private Map<String, String> parameters;
+	private final Map<String, String> parameters;
 
 	/**
 	 * Constructor
@@ -47,6 +52,31 @@ public final class Invitation {
 	public Invitation() {
 		this.parameters = new HashMap<String, String>();
 	}
+	
+	/**
+	 * Constructor sets the <code>email</code>, <code>firstName</code>, 
+	 * and <code>lastName</code> from the given <code>Address</code> object.
+	 * @param address The address object
+	 */
+	public Invitation(Address address) {
+		this();
+		
+		InternetAddress internetAddr;
+		try {
+			internetAddr = new InternetAddress(address.toString());
+		} catch (AddressException e) {
+			throw new ContextedRuntimeException(e)
+			           .addContextValue("pos", e.getPos())
+			           .addContextValue("ref", e.getRef());
+
+		}
+		
+		this.setEmail(internetAddr.getAddress());
+		String name = internetAddr.getPersonal();
+		this.setFirstName(StringUtils.substringBefore(name, " "));
+		this.setLastName(StringUtils.substringAfter(name, " "));
+	}
+
 
 	/**
 	 * @return The parameters map
@@ -57,20 +87,17 @@ public final class Invitation {
 
 	/**
 	 * Set the email address (required)
-	 * 
-	 * @param email
-	 *            The email address to set
+	 * @param email The email address to set
 	 * @return This instance
-	 * @throws ContextedException
-	 *             if the email is invalid
+	 * @throws ContextedRuntimeException if the email is invalid
 	 */
-	public Invitation setEmail(String email) throws ContextedException {
+	public Invitation setEmail(String email) {
 		EmailValidator validator;
 		validator = EmailValidator.getInstance();
 		if (validator.isValid(email)) {
 			parameters.put("email", email);
 		} else {
-			throw new ContextedException("Invalid email address")
+			throw new ContextedRuntimeException("Invalid email address")
 					.addContextValue("email", email);
 		}
 
@@ -108,19 +135,18 @@ public final class Invitation {
 	 * @param role
 	 *            The role to set
 	 * @return This instance
-	 * @throws ContextedException
-	 *             if the role value is set to <code>OWNER</code>
+	 * @throws ContextedRuntimeException if the role value is set to <code>OWNER</code>
 	 */
-	public Invitation setRole(Role role) throws ContextedException {
+	public Invitation setRole(Role role) {
 		
 		if (role != Role.OWNER) {
 			parameters.put("role", role.getIndex().toString());
 		}
 
 		else {
-			throw new ContextedException("Role value cannot be set to OWNER")
-					.addContextValue("name", role.toString()).addContextValue(
-							"ordinal", role.ordinal());
+			throw new ContextedRuntimeException("Role value cannot be set to OWNER")
+					.addContextValue("name", role.toString())
+					.addContextValue("value", role.getIndex());
 		}
 
 		return this;

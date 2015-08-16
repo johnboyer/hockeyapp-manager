@@ -18,13 +18,15 @@
  */
 package com.rodaxsoft.hockeyapp.user;
 
+import javax.mail.Address;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 /**
  * User class
  * @author John Boyer
- * @version 2015-08-12
+ * @version 2015-08-16
  * @since 0.1
  * 
  */
@@ -65,6 +67,13 @@ public final class User {
 	 * User ID
 	 */
 	private Integer userId;
+	
+	/**
+	 * @return The address representation of the user
+	 */
+	public Address getAddress() {
+		return new UserAddress(this);
+	}
 	
 	/**
 	 * @return the created
