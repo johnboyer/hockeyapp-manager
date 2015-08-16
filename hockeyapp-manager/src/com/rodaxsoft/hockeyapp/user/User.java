@@ -18,6 +18,7 @@
  */
 package com.rodaxsoft.hockeyapp.user;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
 /**
@@ -53,9 +54,9 @@ public final class User {
 	 */
 	private Boolean pending;
 	/**
-	 * Role
+	 * Role [default: {@link Role#TESTER}]
 	 */
-	private Role role;
+	private Role role = Role.TESTER;
 	/**
 	 * Tags (optional)
 	 */
@@ -77,12 +78,29 @@ public final class User {
 	public String getEmail() {
 		return email;
 	}
+	
+	/**
+	 * @return The name <i>before</i> the first space character in the 
+	 * full-name or <code>null</code>.
+	 */
+	public String getFirstName() {
+		String firstName;
+		if(fullName != null) {
+			firstName = StringUtils.substringBefore(fullName, " ");
+		}
+		else {
+			firstName = null;
+		}
+		return firstName;
+	}
+	
 	/**
 	 * @return the fullName
 	 */
 	public String getFullName() {
 		return fullName;
 	}
+	
 	/**
 	 * @return the id
 	 */
@@ -96,16 +114,22 @@ public final class User {
 		return invited;
 	}
 	/**
-	 * Returns <code>true</code> if the user's membership to an app is pending; 
-	 * otherwise, <code>false</code>.
-	 * @return A value of <code>true</code> if the user's membership to an app 
-	 *         is pending.
+	 * @return The name <i>after</i> the first space character in the 
+	 * full-name or <code>null</code>.
 	 */
-	public Boolean isPending() {
-		return pending;
+	public String getLastName() {
+		String lastName;
+		if(fullName != null) {
+			lastName = StringUtils.substringAfter(fullName, " ");
+		}
+		else {
+			lastName = null;
+		}
+		return lastName;
 	}
 	/**
-	 * @return the role
+	 * Returns the role [default: {@link Role#TESTER}]
+	 * @return The role
 	 */
 	public Role getRole() {
 		return role;
@@ -121,6 +145,15 @@ public final class User {
 	 */
 	public Integer getUserId() {
 		return userId;
+	}
+	/**
+	 * Returns <code>true</code> if the user's membership to an app is pending; 
+	 * otherwise, <code>false</code>.
+	 * @return A value of <code>true</code> if the user's membership to an app 
+	 *         is pending.
+	 */
+	public Boolean isPending() {
+		return pending;
 	}
 	/**
 	 * @param created the created to set
