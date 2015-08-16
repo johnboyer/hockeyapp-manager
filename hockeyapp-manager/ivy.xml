@@ -14,8 +14,9 @@
 		<dependency org="joda-time" name="joda-time" rev="2.8+"/>
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.9+"/>
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.0"/>
-
 		
+		<dependency org="com.sun.mail" name="javax.mail" rev="1.5+" transitive="false"/>
+
 		<!-- JSON lib -->
 		<dependency org="net.sf.json-lib" name="json-lib" rev="2.4">
 			<artifact name="json-lib" type="jar" m:classifier="jdk15"/>

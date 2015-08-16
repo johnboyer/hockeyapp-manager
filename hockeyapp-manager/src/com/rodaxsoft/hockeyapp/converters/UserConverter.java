@@ -21,6 +21,10 @@ package com.rodaxsoft.hockeyapp.converters;
 
 import java.util.Arrays;
 
+import javax.mail.Address;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.Converter;
@@ -32,13 +36,12 @@ import org.joda.time.DateTime;
 
 import com.rodaxsoft.hockeyapp.user.Role;
 import com.rodaxsoft.hockeyapp.user.User;
-import com.rodaxsoft.mail.Address;
 
 /**
  * UserConverter converts {@link JSONObject}Object and {@link Address} instances 
  * into a {@link User} object
  * @author John Boyer
- * @version 2015-08-15
+ * @version 2015-08-16
  * @since 0.1
  * 
  */
@@ -66,20 +69,30 @@ public final class UserConverter implements Converter {
 	}
 
 	/**
-	 * @param addr
-	 * @return
+	 * Convert <code>JSONObject</code> into a <code>User</code>
+	 * @param addr The <code>Address</code> to convert
+	 * @return A converted User object
 	 */
 	private User convertAddress(Address addr) {
-		User user;
-		user = new User();
-		user.setEmail(addr.getEmail());
-		user.setFullName(addr.getName());
+		User user = null;
+
+		try {
+			
+			InternetAddress ia = new InternetAddress(addr.toString());
+			user = new User();
+			user.setEmail(ia.getAddress());
+			user.setFullName(ia.getPersonal());
+		} catch (AddressException e) {
+			throw new ContextedRuntimeException(e);
+		}
+
 		return user;
 	}
 
 	/**
-	 * @param obj
-	 * @return
+	 * Convert <code>JSONObject</code> into a <code>User</code>
+	 * @param obj The <code>JSONObject</code> to convert
+	 * @return A converted User object
 	 */
 	private User convertJSONObject(JSONObject obj) {
 		User user;
